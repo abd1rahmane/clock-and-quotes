@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accurate Character Clock</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: black;
+            font-family: monospace;
+        }
+        .clock {
+            width: 250px;
+            background-color: black;
+            color: #333;
+            padding: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+            letter-spacing: 2px;
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            gap: 2px;
+        }
+        .char {
+            display: inline-block;
+            text-align: center;
+        }
+        .active {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="clock" id="charClock"></div>
+
+    <script>
+        const clockLayout = [
+            "ITLISASTIME",
+            "ACQUARTERDC",
+            "TWENTYFIVEX",
+            "HALFBTENFTO",
+            "PASTERUNINE",
+            "ONESIXTHREE",
+            "FOURFIVETWO",
+            "EIGHTELEVEN",
+            "SEVENTWELVE",
+            "TENSEOCLOCK"
+        ];
+
+        function getActiveWords(time) {
+            let hours = time.getHours() % 12 || 12;
+            const minutes = time.getMinutes();
+            
+            let active = ["IT", "IS"];
+            
+            if (minutes >= 0 && minutes < 5) {
+                active.push("OCLOCK");
+            } else {
+                if (minutes >= 5 && minutes < 35) active.push("PAST");
+                else {
+                    active.push("TO");
+                    hours = (hours % 12) + 1;
+                }
+
+                if (minutes >= 5 && minutes < 10 || minutes >= 55) active.push("FIVE");
+                else if (minutes >= 10 && minutes < 15 || minutes >= 50 && minutes < 55) active.push("TEN");
+                else if (minutes >= 15 && minutes < 20 || minutes >= 45 && minutes < 50) active.push("A", "QUARTER");
+                else if (minutes >= 20 && minutes < 25 || minutes >= 40 && minutes < 45) active.push("TWENTY");
+                else if (minutes >= 25 && minutes < 30 || minutes >= 35 && minutes < 40) active.push("TWENTYFIVE");
+                else if (minutes >= 30 && minutes < 35) active.push("HALF");
+            }
+            
+            const hourWords = [
+                "TWELVE", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX",
+                "SEVEN", "EIGHT", "NINE", "TEN", "ELEVEN"
+            ];
+            active.push(hourWords[hours - 1]);
+            
+            return active;
+        }
+
+        function updateClock() {
+            const clockElement = document.getElementById('charClock');
+            const now = new Date();
+            const activeWords = getActiveWords(now);
+            
+            clockElement.innerHTML = '';
+            clockLayout.forEach(row => {
+                for (let char of row) {
+                    const span = document.createElement('span');
+                    span.textContent = char;
+                    span.className = 'char';
+                    if (activeWords.some(word => word.includes(char))) {
+                        span.classList.add('active');
+                    }
+                    clockElement.appendChild(span);
+                }
+            });
+        }
+
+        updateClock();
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>
